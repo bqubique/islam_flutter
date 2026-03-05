@@ -1,0 +1,28 @@
+name: islam_dart
+description: "A comprehensive Flutter package for Islamic applications."
+version: 0.0.1
+homepage: https://github.com/bqubique/islam_dart
+
+environment:
+  sdk: ^3.7.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sqflite: ^2.4.2
+  path: ^1.9.1
+  http: ^1.6.0
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.2
+
+flutter:
+  assets:
+    - assets/quran/
+    - assets/azkar/
+    - assets/hadith/
+    - assets/tafseer/
