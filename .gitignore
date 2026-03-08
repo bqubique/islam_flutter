@@ -7,8 +7,9 @@
 # Build outputs
 build/
 
-# Generated files (only if you commit the pubspec.lock for apps, not packages)
+
 pubspec.lock
+!example/pubspec.lock
 
 # IDE
 .idea/

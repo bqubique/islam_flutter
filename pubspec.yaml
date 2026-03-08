@@ -23,6 +23,11 @@ dev_dependencies:
   flutter_lints: ^3.0.2
 
 flutter:
+  plugin:
+    platforms:
+      android:
+      ios:
+
   assets:
     - assets/azkar/
     - assets/hadith/

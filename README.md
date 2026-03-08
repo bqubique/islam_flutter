@@ -1,39 +1,129 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# islam_flutter
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Flutter package for accessing Quran text, translations, and tafseer.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- All 114 chapters with metadata (name, transliteration, type, verse count)
+- Verses in Hafs and Warsh dialects
+- 10 translations (English, French, Urdu, Indonesian, Russian, Turkish, Bengali, Chinese, Spanish, Swedish)
+- 8 tafseer editions (Al-Jalalayn, Ibn Kathir, Al-Qurtubi, Al-Tabari, Al-Saddi, Qushairi, Ibn Kathir Urdu, Fathul Majid)
+- One-time database download with progress callback
+- Fully offline after first run
+- SHA-256 integrity check on the downloaded database
 
-## Getting started
+## Installation
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+```yaml
+dependencies:
+  islam_flutter: ^0.0.1
+```
+
+## Setup
+
+Call `QuranService.init()` once at app startup before using the service. This checks whether the database is cached locally and downloads it if not.
+
+```dart
+await QuranService().init(
+  onDownloadStart: () {
+    // show progress UI
+  },
+  onProgress: (double progress) {
+    // progress is 0.0–1.0
+  },
+);
+```
+
+The database is downloaded only on the first launch (or when the package ships a new DB version).
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
 ```dart
-const like = 'sample';
+final quran = QuranService();
+
+// All chapters
+final chapters = await quran.getAllChapters();
+
+// Single chapter
+final fatiha = await quran.getChapterById(1);
+
+// Verses (Hafs dialect by default)
+final verses = await quran.getVersesByChapter(1);
+
+// Verses in Warsh dialect
+final warsh = await quran.getVersesByChapter(1, dialect: DialectEnum.warsh);
+
+// Single verse
+final verse = await quran.getVerse(2, 255);
+
+// Verse with translation
+final translated = await quran.getVersesWithTranslation(
+  [(chapterId: 2, verseId: 255)],
+  translation: TranslationEnum.french,
+);
+
+// Verse with translation and tafseer
+final detailed = await quran.getVerseWithTafseer(
+  1,
+  1,
+  translation: TranslationEnum.english,
+  tafseer: TafseerEnum.ibnKathir,
+);
 ```
 
-## Additional information
+## Enums
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+**TranslationEnum**
+
+| Value        | Language                                   |
+| ------------ | ------------------------------------------ |
+| `english`    | English — Saheeh International             |
+| `french`     | French — Muhammad Hamidullah               |
+| `urdu`       | Urdu — Abul A'ala Maududi                  |
+| `indonesian` | Indonesian — Ministry of Religious Affairs |
+| `russian`    | Russian — Elmir Kuliev                     |
+| `turkish`    | Turkish — Diyanet Isleri                   |
+| `bengali`    | Bengali — Muhiuddin Khan                   |
+| `chinese`    | Chinese — Ma Jian                          |
+| `spanish`    | Spanish — Muhammad Isa Garcia              |
+| `swedish`    | Swedish — Knut Bernström                   |
+
+**TafseerEnum**
+
+| Value           | Name                         | Language |
+| --------------- | ---------------------------- | -------- |
+| `jalalayn`      | Tafsir Al-Jalalayn           | English  |
+| `ibnKathir`     | Tafsir Ibn Kathir (abridged) | English  |
+| `qushayri`      | Al-Qushairi Tafsir           | English  |
+| `tabari`        | تفسير الطبري                 | Arabic   |
+| `qurtubi`       | تفسير القرطبي                | Arabic   |
+| `saddi`         | تفسير السعدي                 | Arabic   |
+| `ibnKathirUrdu` | تفسیر ابن کثیر               | Urdu     |
+| `fathulMajid`   | تاফসীর ফাতহুল মাজিদ          | Bengali  |
+
+**DialectEnum**
+
+| Value   | Description            |
+| ------- | ---------------------- |
+| `hafs`  | Hafs an Asim (default) |
+| `warsh` | Warsh an Nafi          |
+
+## Error handling
+
+All methods throw typed exceptions from the package:
+
+- `IslamDartDatabaseException` - database open or query failure
+- `NotFoundException` - chapter or verse not found
+- `InvalidArgumentException` - chapter/verse ID out of valid range
+
+## Platform support
+
+| Android | iOS | Web | macOS | Windows | Linux |
+| ------- | --- | --- | ----- | ------- | ----- |
+| ✅      | ✅  | —   | ✅    | —       | —     |
+
+## Requirements
+
+- Flutter 3.x or later
+- Dart 3.x or later
+- Internet connection on first launch for database download
