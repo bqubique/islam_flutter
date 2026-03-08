@@ -1,0 +1,13 @@
+name: islam_flutter
+description: "A comprehensive Flutter package for Islamic applications."
+version: 0.0.1
+homepage: https://github.com/bqubique/islam_flutter
+
+environment:
+  sdk: ^3.7.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  http: ^1.2.0
+  path: ^1.9.0
+  sqflite_common_ffi: ^2.3.0 # ← this one, NOT sqflite

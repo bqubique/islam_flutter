@@ -1,4 +1,4 @@
-# islam_dart_example
+# islam_flutter_example
 
 A new Flutter project.
 

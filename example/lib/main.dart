@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:islam_dart/islam_dart.dart';
+import 'package:islam_flutter/islam_flutter.dart';
 
 void main() {
-  runApp(const IslamDartExampleApp());
+  runApp(const IslamFlutterExampleApp());
 }
 
-class IslamDartExampleApp extends StatelessWidget {
-  const IslamDartExampleApp({super.key});
+class IslamFlutterExampleApp extends StatelessWidget {
+  const IslamFlutterExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,109 @@ class IslamDartExampleApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const DbInitGate(),
+    );
+  }
+}
+
+class DbInitGate extends StatefulWidget {
+  const DbInitGate({super.key});
+
+  @override
+  State<DbInitGate> createState() => _DbInitGateState();
+}
+
+class _DbInitGateState extends State<DbInitGate> {
+  double? _progress;
+  String _status = 'Checking database…';
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      await QuranService().init(
+        onDownloadStart: () => setState(() {
+          _progress = 0;
+        }),
+        onProgress: (p) => setState(() => _progress = p),
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } catch (e) {
+      setState(() => _error = e.toString());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.menu_book_rounded, size: 64, color: cs.primary),
+              const SizedBox(height: 24),
+              const Text(
+                'Quran Explorer',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 32),
+              if (_error != null) ...[
+                Icon(Icons.error_outline, color: cs.error, size: 36),
+                const SizedBox(height: 12),
+                Text(
+                  _error!,
+                  style: TextStyle(color: cs.error),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _error = null;
+                      _progress = null;
+                      _status = 'Checking database…';
+                    });
+                    _init();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
+              ] else ...[
+                Text(_status, style: TextStyle(color: cs.onSurface)),
+                const SizedBox(height: 16),
+                _progress == null
+                    ? const LinearProgressIndicator()
+                    : Column(
+                        children: [
+                          LinearProgressIndicator(value: _progress),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${(_progress! * 100).toStringAsFixed(0)}%',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: cs.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -370,8 +472,7 @@ class _ChapterSummaryView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text('Now select an Ayah from the dropdown above.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurface.withOpacity(0.5))),
+            textAlign: TextAlign.center, style: TextStyle(color: cs.onSurface)),
       ],
     );
   }

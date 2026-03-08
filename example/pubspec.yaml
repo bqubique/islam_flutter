@@ -1,5 +1,5 @@
-name: islam_dart_example
-description: Example app for islam_dart package.
+name: islam_flutter_example
+description: Example app for islam_flutter package.
 publish_to: none
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  islam_dart:
+  islam_flutter:
     path: ../
 
 flutter:
