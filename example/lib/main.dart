@@ -44,6 +44,7 @@ class _DbInitGateState extends State<DbInitGate> {
       await QuranService().init(
         onDownloadStart: () => setState(() {
           _progress = 0;
+          _status = 'Downloading Quran database…';
         }),
         onProgress: (p) => setState(() => _progress = p),
       );
@@ -78,7 +79,7 @@ class _DbInitGateState extends State<DbInitGate> {
               if (_error != null) ...[
                 Icon(Icons.error_outline, color: cs.error, size: 36),
                 const SizedBox(height: 12),
-                Text(
+                SelectableText(
                   _error!,
                   style: TextStyle(color: cs.error),
                   textAlign: TextAlign.center,
@@ -239,12 +240,27 @@ class _HomePageState extends State<HomePage> {
     if (_selectedVerseId != null) await _fetchVerse();
   }
 
+  Future<void> _resetDb() async {
+    await _quran.reset();
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const DbInitGate()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quran Explorer'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Re-download database',
+            onPressed: _resetDb,
+          ),
+        ],
       ),
       body: Column(
         children: [

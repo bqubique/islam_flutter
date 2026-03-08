@@ -109,4 +109,6 @@ class QuranService {
     tafseer: tafseer,
     dialect: dialect,
   );
+
+  Future<void> reset() => DbHelper.instance.reset();
 }

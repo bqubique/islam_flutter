@@ -48,13 +48,8 @@ class DbHelper {
     VoidCallback? onDownloadStart,
     void Function(double progress)? onProgress,
   }) async {
-    if (_db != null) return; // already initialised
+    if (_db != null) return;
     final path = await _dbPath();
-
-    debugPrint('DB path: $path');
-    debugPrint('Is cached: ${await _isCached(path)}');
-    final vf = File('$path.version');
-    debugPrint('Stored version: ${await vf.readAsString()}');
 
     if (!await _isCached(path)) {
       onDownloadStart?.call();
@@ -70,21 +65,26 @@ class DbHelper {
   }
 
   Future<bool> _isCached(String path) async {
-    final file = File(path);
-    if (!await file.exists() || await file.length() == 0) return false;
-    final vf = File('$path.version');
-    if (!await vf.exists()) return false;
-    final stored = int.tryParse(await vf.readAsString());
-    debugPrint(
-      'Stored: $stored, Current: $_dbVersion, Match: ${stored == _dbVersion}',
-    );
-    return stored == _dbVersion;
+    try {
+      final file = File(path);
+      if (!await file.exists() || await file.length() == 0) return false;
+
+      final vf = File('$path.version');
+      if (!await vf.exists()) return false;
+
+      final storedVersion = int.tryParse(await vf.readAsString());
+      return storedVersion == _dbVersion;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _download(
     String path, {
     void Function(double)? onProgress,
   }) async {
+    await File(path).parent.create(recursive: true);
+
     final request = http.Request('GET', Uri.parse(DbConstants.dbUrl));
     final response = await request.send();
 
