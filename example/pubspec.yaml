@@ -1,0 +1,16 @@
+name: islam_dart_example
+description: Example app for islam_dart package.
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  islam_dart:
+    path: ../
+
+flutter:
+  uses-material-design: true
