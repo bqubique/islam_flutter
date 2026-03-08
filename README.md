@@ -1,6 +1,6 @@
 # islam_flutter
 
-Flutter package for accessing Quran text, translations, and tafseer.
+Flutter package for accessing Quran text, translations, and tafseer. Heavily inspired by [islam.js](https://github.com/dev-ahmadbilal/islam.js).
 
 ## Features
 
@@ -112,7 +112,7 @@ final detailed = await quran.getVerseWithTafseer(
 
 All methods throw typed exceptions from the package:
 
-- `IslamDartDatabaseException` - database open or query failure
+- `IslamFlutterDatabaseException` - database open or query failure
 - `NotFoundException` - chapter or verse not found
 - `InvalidArgumentException` - chapter/verse ID out of valid range
 
