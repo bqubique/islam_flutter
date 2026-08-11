@@ -426,7 +426,7 @@ class _HomePageState extends State<HomePage> {
     bool enabled = true,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       decoration: InputDecoration(
         labelText: label,
