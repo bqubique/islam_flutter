@@ -74,6 +74,24 @@ class QuranService {
     DialectEnum dialect = DialectEnum.hafs,
   }) => _repository.getVerse(chapterId, verseId, dialect: dialect);
 
+  /// Returns the immediate next verse after [chapterId]:[verseId].
+  ///
+  /// Throws [QuranBoundaryException] if at the end of the Quran (114:6).
+  Future<Verse> getNextVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  }) => _repository.getNextVerse(chapterId, verseId, dialect: dialect);
+
+  /// Returns the immediate previous verse before [chapterId]:[verseId].
+  ///
+  /// Throws [QuranBoundaryException] if at the beginning of the Quran (1:1).
+  Future<Verse> getPreviousVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  }) => _repository.getPreviousVerse(chapterId, verseId, dialect: dialect);
+
   /// Returns one or more verses each paired with its translation.
   ///
   /// Example — Ayat al-Kursi in French:

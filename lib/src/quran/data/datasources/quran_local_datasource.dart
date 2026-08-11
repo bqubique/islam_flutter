@@ -140,6 +140,80 @@ class QuranLocalDatasource {
     }
   }
 
+  /// Gets the immediate next verse after [chapterId]:[verseId].
+  ///
+  /// Handles chapter boundaries automatically (e.g., 1:7 -> 2:1).
+  /// Returns `null` if [chapterId]:[verseId] is the last verse in the Quran (114:6).
+  Future<VerseModel?> getNextVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  }) async {
+    _validateChapterId(chapterId);
+    try {
+      final db = await _db;
+      final rows = await db.rawQuery(
+        '''
+      SELECT 
+        ${DbConstants.colChapterId},
+        ${DbConstants.colVerseId},
+        ${dialect.columnName}
+      FROM ${DbConstants.versesTable}
+      WHERE (${DbConstants.colChapterId} = ? AND ${DbConstants.colVerseId} > ?)
+         OR (${DbConstants.colChapterId} > ?)
+      ORDER BY ${DbConstants.colChapterId} ASC, ${DbConstants.colVerseId} ASC
+      LIMIT 1
+      ''',
+        [chapterId, verseId, chapterId],
+      );
+
+      if (rows.isEmpty) return null;
+      return VerseModel.fromMap(rows.first, dialect);
+    } catch (e) {
+      throw IslamFlutterDatabaseException(
+        'Failed to get next verse after $chapterId:$verseId',
+        cause: e,
+      );
+    }
+  }
+
+  /// Gets the immediate previous verse before [chapterId]:[verseId].
+  ///
+  /// Handles chapter boundaries automatically (e.g., 2:1 -> 1:7).
+  /// Returns `null` if [chapterId]:[verseId] is the first verse in the Quran (1:1).
+  Future<VerseModel?> getPreviousVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  }) async {
+    _validateChapterId(chapterId);
+    try {
+      final db = await _db;
+      final rows = await db.rawQuery(
+        '''
+      SELECT 
+        ${DbConstants.colChapterId},
+        ${DbConstants.colVerseId},
+        ${dialect.columnName}
+      FROM ${DbConstants.versesTable}
+      WHERE (${DbConstants.colChapterId} = ? AND ${DbConstants.colVerseId} < ?)
+         OR (${DbConstants.colChapterId} < ?)
+      ORDER BY ${DbConstants.colChapterId} DESC, ${DbConstants.colVerseId} DESC
+      LIMIT 1
+      ''',
+        [chapterId, verseId, chapterId],
+      );
+
+      if (rows.isEmpty) return null;
+      return VerseModel.fromMap(rows.first, dialect);
+    } catch (e) {
+      throw IslamFlutterDatabaseException(
+        'Failed to get previous verse before $chapterId:$verseId',
+        cause: e,
+      );
+    }
+  }
+
   Future<List<VerseWithTranslationModel>> getVersesWithTranslation(
     List<({int chapterId, int verseId})> refs, {
     TranslationEnum translation = TranslationEnum.english,

@@ -69,3 +69,11 @@ class InvalidArgumentException extends IslamFlutterException {
   @override
   String toString() => 'InvalidArgumentException: $message';
 }
+
+/// Thrown when attempting to navigate beyond the start or end of the Quran.
+class QuranBoundaryException extends IslamFlutterException {
+  const QuranBoundaryException(super.message, {super.cause});
+
+  @override
+  String toString() => 'QuranBoundaryException: $message';
+}

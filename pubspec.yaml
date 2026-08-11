@@ -1,6 +1,6 @@
 name: islam_flutter
 description: "A comprehensive Flutter package for Islamic applications."
-version: 0.0.3
+version: 0.0.4
 repository: https://github.com/bqubique/islam_flutter
 
 topics:
@@ -14,16 +14,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite: ^2.4.2
+  sqflite: ^2.4.3
   path: ^1.9.1
-  path_provider: ^2.1.5
+  path_provider: ^2.1.6
   http: ^1.6.0
   crypto: ^3.0.7
-  intl: ^0.20.2
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.2
+  flutter_lints: ^6.0.0
 
 flutter:

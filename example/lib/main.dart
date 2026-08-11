@@ -223,6 +223,54 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _navigateToAdjacentVerse({required bool isNext}) async {
+    if (_selectedChapter == null || _selectedVerseId == null) return;
+
+    try {
+      final Verse targetVerse;
+      if (isNext) {
+        targetVerse = await _quran.getNextVerse(
+          _selectedChapter!.id,
+          _selectedVerseId!,
+        );
+      } else {
+        targetVerse = await _quran.getPreviousVerse(
+          _selectedChapter!.id,
+          _selectedVerseId!,
+        );
+      }
+
+      if (_selectedChapter!.id != targetVerse.chapterId) {
+        final newChapter = _allChapters.firstWhere(
+          (c) => c.id == targetVerse.chapterId,
+        );
+        final verses = await _quran.getVersesByChapter(
+          newChapter.id,
+          dialect: DialectEnum.hafs,
+        );
+        setState(() {
+          _selectedChapter = newChapter;
+          _verses = verses;
+          _selectedVerseId = targetVerse.verseId;
+        });
+      } else {
+        setState(() => _selectedVerseId = targetVerse.verseId);
+      }
+
+      await _fetchVerse();
+    } on QuranBoundaryException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      setState(() => _error = e.toString());
+    }
+  }
+
   Future<void> _onVerseSelected(int? verseId) async {
     setState(() => _selectedVerseId = verseId);
     await _fetchVerse();
@@ -429,6 +477,8 @@ class _HomePageState extends State<HomePage> {
       translationLabel: _selectedTranslation.language,
       tafseerLabel: _selectedTafseer.name,
       data: _verseWithTafseer!,
+      onPrevious: () => _navigateToAdjacentVerse(isNext: false),
+      onNext: () => _navigateToAdjacentVerse(isNext: true),
     );
   }
 }
@@ -509,6 +559,8 @@ class _VerseDetailView extends StatelessWidget {
     required this.translationLabel,
     required this.tafseerLabel,
     required this.data,
+    required this.onPrevious,
+    required this.onNext,
   });
 
   final Chapter chapter;
@@ -516,54 +568,92 @@ class _VerseDetailView extends StatelessWidget {
   final String translationLabel;
   final String tafseerLabel;
   final VerseWithTafseer data;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Column(
       children: [
-        Center(
-          child: Chip(
-            avatar: Icon(Icons.bookmark_rounded, color: cs.onPrimary, size: 16),
-            label: Text(
-              '${chapter.transliteration} ${chapter.id}:$verseId',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: cs.onPrimary),
-            ),
-            backgroundColor: cs.primary,
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Center(
+                child: Chip(
+                  avatar: Icon(Icons.bookmark_rounded,
+                      color: cs.onPrimary, size: 16),
+                  label: Text(
+                    '${chapter.transliteration} ${chapter.id}:$verseId',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: cs.onPrimary),
+                  ),
+                  backgroundColor: cs.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _section(
+                context,
+                icon: Icons.text_fields_rounded,
+                label: 'Arabic',
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: SelectableText(
+                    data.text,
+                    style: const TextStyle(fontSize: 22, height: 2.0),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _section(
+                context,
+                icon: Icons.translate_rounded,
+                label: 'Translation — $translationLabel',
+                child: SelectableText(data.translation,
+                    style: const TextStyle(fontSize: 15, height: 1.7)),
+              ),
+              const SizedBox(height: 12),
+              _section(
+                context,
+                icon: Icons.auto_stories_rounded,
+                label: 'Tafseer — $tafseerLabel',
+                child: SelectableText(
+                  data.tafseer,
+                  style:
+                      TextStyle(fontSize: 14, height: 1.8, color: cs.onSurface),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        _section(
-          context,
-          icon: Icons.text_fields_rounded,
-          label: 'Arabic',
-          child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: SelectableText(
-              data.text,
-              style: const TextStyle(fontSize: 22, height: 2.0),
-              textAlign: TextAlign.right,
-            ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(20),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
-        _section(
-          context,
-          icon: Icons.translate_rounded,
-          label: 'Translation — $translationLabel',
-          child: SelectableText(data.translation,
-              style: const TextStyle(fontSize: 15, height: 1.7)),
-        ),
-        const SizedBox(height: 12),
-        _section(
-          context,
-          icon: Icons.auto_stories_rounded,
-          label: 'Tafseer — $tafseerLabel',
-          child: SelectableText(
-            data.tafseer,
-            style: TextStyle(fontSize: 14, height: 1.8, color: cs.onSurface),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              OutlinedButton.icon(
+                onPressed: onPrevious,
+                icon: const Icon(Icons.arrow_back_rounded),
+                label: const Text('Previous'),
+              ),
+              FilledButton.icon(
+                onPressed: onNext,
+                icon: const Icon(Icons.arrow_forward_rounded),
+                label: const Text('Next'),
+              ),
+            ],
           ),
         ),
       ],

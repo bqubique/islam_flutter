@@ -56,4 +56,28 @@ abstract interface class QuranRepository {
     TafseerEnum tafseer = TafseerEnum.jalalayn,
     DialectEnum dialect = DialectEnum.hafs,
   });
+
+  /// Returns the immediate next verse after [chapterId]:[verseId].
+  ///
+  /// Automatically handles chapter boundaries (e.g. 1:7 -> 2:1).
+  ///
+  /// Throws [QuranBoundaryException] if [chapterId]/[verseId] is invalid or if
+  /// called on the last verse of the Quran (114:6).
+  Future<Verse> getNextVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  });
+
+  /// Returns the immediate previous verse before [chapterId]:[verseId].
+  ///
+  /// Automatically handles chapter boundaries (e.g. 2:1 -> 1:7).
+  ///
+  /// Throws [QuranBoundaryException] if [chapterId]/[verseId] is invalid or if
+  /// called on the first verse of the Quran (1:1).
+  Future<Verse> getPreviousVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  });
 }

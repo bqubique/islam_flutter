@@ -1,3 +1,4 @@
+import '../../../core/errors/exceptions.dart';
 import '../../data/datasources/quran_local_datasource.dart';
 import '../entities/chapter.dart';
 import '../entities/verse.dart';
@@ -62,4 +63,42 @@ class QuranRepositoryImpl implements QuranRepository {
     tafseer: tafseer,
     dialect: dialect,
   );
+
+  @override
+  Future<Verse> getNextVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  }) async {
+    final verse = await _datasource.getNextVerse(
+      chapterId,
+      verseId,
+      dialect: dialect,
+    );
+    if (verse == null) {
+      throw QuranBoundaryException(
+        'Reached the end of the Quran (no verse after $chapterId:$verseId).',
+      );
+    }
+    return verse;
+  }
+
+  @override
+  Future<Verse> getPreviousVerse(
+    int chapterId,
+    int verseId, {
+    DialectEnum dialect = DialectEnum.hafs,
+  }) async {
+    final verse = await _datasource.getPreviousVerse(
+      chapterId,
+      verseId,
+      dialect: dialect,
+    );
+    if (verse == null) {
+      throw QuranBoundaryException(
+        'Reached the beginning of the Quran (no verse before $chapterId:$verseId).',
+      );
+    }
+    return verse;
+  }
 }
