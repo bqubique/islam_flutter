@@ -1,3 +1,10 @@
+## 0.0.4 Aug 11, 2026
+
+- Remove deprecated CocoaPods integration
+- Add `getNextVerse` and `getPreviousVerse` to QuranRepository and QuranService.
+- Export `QuranBoundaryException` for boundary handling.
+- Bump outdated package dependencies.
+
 ## 0.0.3 Mar 8, 2026
 
 - `pub.dev` improvements
