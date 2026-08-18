@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:islam_flutter/islam_flutter.dart';
 
+import 'prayer_page.dart';
+
 void main() {
   runApp(const IslamFlutterExampleApp());
 }
@@ -303,6 +305,13 @@ class _HomePageState extends State<HomePage> {
         title: const Text('Quran Explorer'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.mosque_rounded),
+            tooltip: 'Prayer times',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PrayerPage()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Re-download database',
