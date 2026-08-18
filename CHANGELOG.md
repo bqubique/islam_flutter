@@ -1,4 +1,4 @@
-## Unreleased
+## 0.0.5 Aug 18, 2026
 
 - Add `PrayerService` backed by the [Aladhan API](https://aladhan.com/prayer-times-api).
   - `getTimingsByCoordinates`, `getTimingsByCity`, `getTimingsByAddress`, `getMonthlyCalendar`.
